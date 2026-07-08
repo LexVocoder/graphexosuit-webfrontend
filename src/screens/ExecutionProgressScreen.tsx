@@ -8,7 +8,7 @@
  *  - Handle status changes: running → paused (interrupt) | completed (result) | error
  *  - On paused: show interrupt prompt, allow JSON editing, Resume button
  *  - On error: show error message, Retry button
- *  - On completed: show final result, Run Again button
+ *  - On completed: show final result, Start Over button
  *  - Polling interval control slider
  */
 
@@ -140,8 +140,8 @@ function ExecutionProgressScreen({
    * Setup polling interval.
    */
   useEffect(() => {
-    // Don't poll if execution is complete or in error
-    if (status === 'completed' || status === 'error') {
+    // Don't poll if execution is complete, in error, or paused awaiting user input
+    if (status === 'completed' || status === 'error' || status === 'paused') {
       return;
     }
 
@@ -282,7 +282,7 @@ function ExecutionProgressScreen({
       </div>
 
       {status === 'paused' && interrupt ? (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-300 rounded-md">
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-300 rounded-md" role="region" aria-label="Execution paused with interrupt options">
           <InterruptPrompt
             interrupt={interrupt}
             selectedOption={selectedInterruptOption}
@@ -333,9 +333,9 @@ function ExecutionProgressScreen({
       ) : null}
 
       {status === 'error' && error ? (
-        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-md">
+        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-md" role="region" aria-label="Execution error status">
           <h4 className="text-sm font-semibold text-red-900 mb-2">Error</h4>
-          <p className="text-red-800 text-sm mb-4">{error}</p>
+          <p className="text-red-800 text-sm mb-4" role="alert">{error}</p>
           <div className="flex gap-3 justify-end">
             <button
               onClick={onResetToPreRun}
@@ -361,12 +361,12 @@ function ExecutionProgressScreen({
       ) : null}
 
       {status === 'completed' && finalResult ? (
-        <div className="mb-6 p-4 bg-green-50 border border-green-300 rounded-md">
+        <div className="mb-6 p-4 bg-green-50 border border-green-300 rounded-md" role="region" aria-label="Execution completion status">
           <h4 className="text-sm font-semibold text-green-900 mb-3">
             Execution Completed
           </h4>
           <div className="bg-white border border-green-200 rounded-md p-3 mb-4 overflow-auto max-h-64">
-            <pre className="font-mono text-sm text-gray-900">
+            <pre className="font-mono text-sm text-gray-900" aria-label="Final result JSON">
               {JSON.stringify(finalResult, null, 2)}
             </pre>
           </div>
@@ -374,9 +374,9 @@ function ExecutionProgressScreen({
             <button
               onClick={onResetToPreRun}
               className="btn-primary"
-              aria-label="Return to pre-run screen"
+              aria-label="Start over with a new execution"
             >
-              Run Again
+              Start Over
             </button>
           </div>
         </div>

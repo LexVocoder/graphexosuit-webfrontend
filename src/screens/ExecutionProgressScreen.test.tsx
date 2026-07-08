@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ExecutionProgressScreen from '@/screens/ExecutionProgressScreen';
 import * as apiClient from '@/api/client';
@@ -257,7 +257,7 @@ describe('ExecutionProgressScreen', () => {
     });
   });
 
-  it('should display Run Again button on completion', async () => {
+  it('should display Start Over button on completion', async () => {
     const completedData: ExecutionData = {
       status: 'completed',
       output_lines: [],
@@ -273,11 +273,11 @@ describe('ExecutionProgressScreen', () => {
     renderScreen();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /return to pre-run screen/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /start over/i })).toBeInTheDocument();
     });
   });
 
-  it('should call onResetToPreRun on Start Over button', async () => {
+  it('should call onResetToPreRun on Start Over button click', async () => {
     const user = userEvent.setup();
     const completedData: ExecutionData = {
       status: 'completed',
@@ -294,11 +294,52 @@ describe('ExecutionProgressScreen', () => {
     renderScreen();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /return to pre-run screen/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /start over/i })).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: /return to pre-run screen/i }));
+    await user.click(screen.getByRole('button', { name: /start over/i }));
 
     expect(mockOnResetToPreRun).toHaveBeenCalled();
+  });
+
+  it('should stop polling when status becomes paused (regression: user can interact with interrupt prompt)', async () => {
+    vi.useFakeTimers();
+
+    const pausedData: ExecutionData = {
+      status: 'paused',
+      output_lines: [],
+      created_at: '2024-01-01T00:00:00Z',
+      result: {
+        thread_id: threadId,
+        checkpoint_id: 'ckpt123',
+        interrupt_value: {
+          message: 'Choose an action',
+          options: [{ label: 'Proceed', payload: { action: 'proceed' } }],
+        },
+      },
+    };
+
+    vi.mocked(apiClient.pollThread).mockResolvedValue(pausedData);
+
+    renderScreen();
+
+    // Flush the initial poll promise
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(apiClient.pollThread).toHaveBeenCalledTimes(1);
+
+    // Advance time well past the default polling interval (1000ms)
+    await act(async () => {
+      vi.advanceTimersByTime(5000);
+      await Promise.resolve();
+    });
+
+    // Regression: polling must not fire again while paused, so the user
+    // can select an option and click Resume without the UI being overwritten.
+    expect(apiClient.pollThread).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
   });
 });

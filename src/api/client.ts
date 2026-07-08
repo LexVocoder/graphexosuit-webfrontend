@@ -44,9 +44,7 @@ const apiClient: AxiosInstance = axios.create({
  *   If HTTP request fails (e.g., 500, network error).
  */
 export async function runGraph(parameters: unknown): Promise<RunResponse> {
-  const response = await apiClient.post<RunResponse>('/run', {
-parameters,
-  });
+  const response = await apiClient.post<RunResponse>('/run', parameters);
   return response.data;
 }
 
