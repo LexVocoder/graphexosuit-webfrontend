@@ -44,7 +44,7 @@ describe('API Client', () => {
 
   describe('runGraph', () => {
     it('should make POST request to /run with initial_state', async () => {
-      const initialState = { key: 'value' };
+      const initialState = { initial_state: { key: 'value' } };
       const response = { thread_id: 'abc123', poll_url: '/thread/abc123' };
 
       mockPostFn.mockResolvedValueOnce({ data: response });
@@ -53,9 +53,7 @@ describe('API Client', () => {
       const { runGraph: testRunGraph } = await import('@/api/client');
       const result = await testRunGraph(initialState);
 
-      expect(mockPostFn).toHaveBeenCalledWith('/run', {
-        initial_state: initialState,
-      });
+      expect(mockPostFn).toHaveBeenCalledWith('/run', initialState);
       expect(result).toEqual(response);
     });
 

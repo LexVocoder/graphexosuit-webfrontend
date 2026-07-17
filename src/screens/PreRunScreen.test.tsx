@@ -41,7 +41,7 @@ describe('PreRunScreen', () => {
     const parsed = JSON.parse(editor.value);
 
     expect(parsed).toEqual({
-      initial_value: { key: 'value' },
+      initial_state: { key: 'value' },
     });
   });
 

@@ -17,7 +17,7 @@ describe('StatusBadge', () => {
     render(<StatusBadge status="running" />);
 
     expect(screen.getByText('Running')).toBeInTheDocument();
-    expect(screen.getByText('⟳')).toBeInTheDocument();
+    expect(screen.getByText('▶')).toBeInTheDocument();
   });
 
   it('should display paused status', () => {
@@ -65,6 +65,6 @@ describe('StatusBadge', () => {
   it('should hide icon from screen readers', () => {
     render(<StatusBadge status="running" />);
 
-    expect(screen.getByText('⟳')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByText('▶')).toHaveAttribute('aria-hidden', 'true');
   });
 });

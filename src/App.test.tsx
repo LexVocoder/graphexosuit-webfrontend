@@ -88,10 +88,10 @@ describe('App', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /return to pre-run screen/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /start over/i })).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: /return to pre-run screen/i }));
+    await user.click(screen.getByRole('button', { name: /start over/i }));
 
     await waitFor(() => {
       expect(screen.getByText('Initial State')).toBeInTheDocument();
