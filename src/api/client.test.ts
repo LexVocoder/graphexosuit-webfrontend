@@ -9,12 +9,6 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import axios from 'axios';
-import {
-  runGraph,
-  pollThread,
-  resumeThread,
-  retryThread,
-} from '@/api/client';
 
 vi.mock('axios');
 const mockedAxios = axios as unknown as {

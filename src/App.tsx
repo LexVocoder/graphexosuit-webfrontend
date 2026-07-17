@@ -8,7 +8,7 @@
  *  - Maintain thread_id state across screens
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AppProvider } from '@/context/AppContext';
 import PreRunScreen from '@/screens/PreRunScreen';
 import ExecutionProgressScreen from '@/screens/ExecutionProgressScreen';

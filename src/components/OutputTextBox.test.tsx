@@ -95,7 +95,7 @@ describe('OutputTextBox', () => {
   });
 
   it('should not show indicator when at bottom', () => {
-    const { rerender } = render(
+    render(
       <OutputTextBox
         lines={Array(50).fill('line')}
         height={10}
@@ -168,7 +168,7 @@ describe('OutputTextBox', () => {
       />
     );
 
-    const resizeHandle = container.querySelector('[role="button"]') as HTMLElement;
+    container.querySelector('[role="button"]');
 
     await user.tab(); // Focus resize handle
     await user.keyboard('{ArrowDown}');
@@ -186,7 +186,7 @@ describe('OutputTextBox', () => {
       />
     );
 
-    const resizeHandle = container.querySelector('[role="button"]') as HTMLElement;
+    container.querySelector('[role="button"]');
 
     await user.tab();
     await user.keyboard('{ArrowUp}');
@@ -214,7 +214,7 @@ describe('OutputTextBox', () => {
       />
     );
 
-    const resizeHandle = container.querySelector('[role="button"]') as HTMLElement;
+    container.querySelector('[role="button"]');
 
     await user.tab();
     await user.keyboard('{ArrowUp}');

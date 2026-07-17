@@ -7,7 +7,6 @@
  *  - Accessible aria-live region for screen readers
  */
 
-import React from 'react';
 import type { ExecutionStatus } from '@/types/api';
 
 interface StatusBadgeProps {

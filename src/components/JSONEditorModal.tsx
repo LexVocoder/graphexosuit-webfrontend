@@ -8,7 +8,6 @@
  *  - Update parent component with edited JSON
  */
 
-import React from 'react';
 import Editor from '@monaco-editor/react';
 
 interface JSONEditorModalProps {

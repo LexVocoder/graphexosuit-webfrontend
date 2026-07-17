@@ -7,7 +7,7 @@
  *  - Limited scope: Only manages polling interval; all other state is local to screens/components
  */
 
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 
 /** App context shape. */
 interface AppContextType {

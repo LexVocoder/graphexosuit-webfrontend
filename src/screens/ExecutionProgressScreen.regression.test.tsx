@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ExecutionProgressScreen from '@/screens/ExecutionProgressScreen';
 import * as apiClient from '@/api/client';
@@ -322,7 +322,7 @@ describe('ExecutionProgressScreen - Regression Tests', () => {
         .mockResolvedValueOnce(runningData)
         .mockResolvedValueOnce(completedData);
 
-      const { rerender } = renderScreen();
+      renderScreen();
 
       await waitFor(() => {
         expect(screen.getByText('Running')).toBeInTheDocument();

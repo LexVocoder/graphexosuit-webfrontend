@@ -9,7 +9,7 @@
  *  - Display error toast on failure
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { runGraph } from '@/api/client';
 
@@ -126,6 +126,7 @@ function PreRunScreen({ onStartRun }: PreRunScreenProps) {
       {/* Run Button */}
       <div className="flex justify-end">
         <button
+          type="button"
           onClick={handleRun}
           disabled={!isJsonValid || isLoading}
           className="btn-primary flex items-center gap-2"

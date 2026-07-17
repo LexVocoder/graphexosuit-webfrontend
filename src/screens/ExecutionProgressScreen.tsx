@@ -12,7 +12,7 @@
  *  - Polling interval control slider
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { pollThread, resumeThread, retryThread } from '@/api/client';
 import type {
   ExecutionData,
@@ -282,7 +282,7 @@ function ExecutionProgressScreen({
       </div>
 
       {status === 'paused' && interrupt ? (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-300 rounded-md" role="region" aria-label="Execution paused with interrupt options">
+        <section className="mb-6 p-4 bg-blue-50 border border-blue-300 rounded-md" aria-label="Execution paused with interrupt options">
           <InterruptPrompt
             interrupt={interrupt}
             selectedOption={selectedInterruptOption}
@@ -306,6 +306,7 @@ function ExecutionProgressScreen({
 
               <div className="flex gap-3 justify-end mt-4">
                 <button
+                  type="button"
                   onClick={onResetToPreRun}
                   className="btn-secondary"
                   aria-label="Return to pre-run screen"
@@ -313,6 +314,7 @@ function ExecutionProgressScreen({
                   Start Over
                 </button>
                 <button
+                  type="button"
                   onClick={handleResume}
                   disabled={!isResumeJsonValid || isResuming}
                   className="btn-primary"
@@ -329,15 +331,16 @@ function ExecutionProgressScreen({
               </div>
             </div>
           )}
-        </div>
+        </section>
       ) : null}
 
       {status === 'error' && error ? (
-        <div className="mb-6 p-4 bg-red-50 border border-red-300 rounded-md" role="region" aria-label="Execution error status">
+        <section className="mb-6 p-4 bg-red-50 border border-red-300 rounded-md" aria-label="Execution error status">
           <h4 className="text-sm font-semibold text-red-900 mb-2">Error</h4>
           <p className="text-red-800 text-sm mb-4" role="alert">{error}</p>
           <div className="flex gap-3 justify-end">
             <button
+              type="button"
               onClick={onResetToPreRun}
               className="btn-secondary"
               aria-label="Return to pre-run screen"
@@ -345,6 +348,7 @@ function ExecutionProgressScreen({
               Start Over
             </button>
             <button
+              type="button"
               onClick={handleRetry}
               disabled={isRetrying}
               className="btn-danger"
@@ -357,21 +361,22 @@ function ExecutionProgressScreen({
               {isRetrying ? 'Retrying...' : 'Retry'}
             </button>
           </div>
-        </div>
+        </section>
       ) : null}
 
       {status === 'completed' && finalResult ? (
-        <div className="mb-6 p-4 bg-green-50 border border-green-300 rounded-md" role="region" aria-label="Execution completion status">
+        <section className="mb-6 p-4 bg-green-50 border border-green-300 rounded-md" aria-label="Execution completion status">
           <h4 className="text-sm font-semibold text-green-900 mb-3">
             Execution Completed
           </h4>
           <div className="bg-white border border-green-200 rounded-md p-3 mb-4 overflow-auto max-h-64">
-            <pre className="font-mono text-sm text-gray-900" aria-label="Final result JSON">
+            <pre className="font-mono text-sm text-gray-900">
               {JSON.stringify(finalResult, null, 2)}
             </pre>
           </div>
           <div className="flex justify-end">
             <button
+              type="button"
               onClick={onResetToPreRun}
               className="btn-primary"
               aria-label="Start over with a new execution"
@@ -379,7 +384,7 @@ function ExecutionProgressScreen({
               Start Over
             </button>
           </div>
-        </div>
+        </section>
       ) : null}
     </div>
   ) as JSX.Element;

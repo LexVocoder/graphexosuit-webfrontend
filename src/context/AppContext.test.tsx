@@ -19,24 +19,28 @@ function TestComponent() {
     <div>
       <span data-testid="polling-interval">{pollingInterval}</span>
       <button
+        type="button"
         onClick={() => updatePollingInterval(500)}
         data-testid="set-interval-500"
       >
         Set 500
       </button>
       <button
+        type="button"
         onClick={() => updatePollingInterval(2000)}
         data-testid="set-interval-2000"
       >
         Set 2000
       </button>
       <button
+        type="button"
         onClick={() => updatePollingInterval(100)}
         data-testid="set-interval-100"
       >
         Set 100
       </button>
       <button
+        type="button"
         onClick={() => updatePollingInterval(15000)}
         data-testid="set-interval-15000"
       >

@@ -8,7 +8,6 @@
  *  - Invoke callback with selected option
  */
 
-import React from 'react';
 import type { StandardizedInterrupt, InterruptOption } from '@/types/api';
 
 interface InterruptPromptProps {
@@ -48,9 +47,9 @@ function InterruptPrompt({
           Choose an option:
         </legend>
 
-        {interrupt.options.map((option, index) => (
+        {interrupt.options.map((option) => (
           <label
-            key={index}
+            key={option.label}
             className="flex items-center gap-3 p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
           >
             <input

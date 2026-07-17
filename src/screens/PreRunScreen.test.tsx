@@ -59,7 +59,7 @@ describe('PreRunScreen', () => {
   });
 
   it('should disable Run button on invalid JSON', async () => {
-    const user = userEvent.setup();
+    const _user = userEvent.setup();
     render(<PreRunScreen onStartRun={mockOnStartRun} />);
 
     const editor = screen.getByTestId('json-editor') as HTMLTextAreaElement;
@@ -113,13 +113,16 @@ describe('PreRunScreen', () => {
 
   it('should disable Run button while request pending', async () => {
     const user = userEvent.setup();
-    let resolveRunGraph: Function;
-    const runGraphPromise = new Promise((resolve) => {
+    let resolveRunGraph:
+      | ((value: { thread_id: string; poll_url: string }) => void)
+      | undefined;
+    const runGraphPromise = new Promise<{
+      thread_id: string;
+      poll_url: string;
+    }>((resolve) => {
       resolveRunGraph = resolve;
     });
-    vi.mocked(apiClient.runGraph).mockReturnValueOnce(
-      runGraphPromise as Promise<any>
-    );
+    vi.mocked(apiClient.runGraph).mockReturnValueOnce(runGraphPromise);
 
     render(<PreRunScreen onStartRun={mockOnStartRun} />);
 
@@ -128,7 +131,7 @@ describe('PreRunScreen', () => {
 
     expect(runButton).toBeDisabled();
 
-    resolveRunGraph!({
+    resolveRunGraph?.({
       thread_id: 'abc123',
       poll_url: '/thread/abc123',
     });
@@ -154,7 +157,7 @@ describe('PreRunScreen', () => {
   });
 
   it('should allow editing JSON', async () => {
-    const user = userEvent.setup();
+    const _user = userEvent.setup();
     render(<PreRunScreen onStartRun={mockOnStartRun} />);
 
     const editor = screen.getByTestId('json-editor') as HTMLTextAreaElement;

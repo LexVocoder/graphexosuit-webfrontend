@@ -80,7 +80,7 @@ function OutputTextBox({
     if (isAtBottom && textBoxRef.current) {
       textBoxRef.current.scrollTop = textBoxRef.current.scrollHeight;
     }
-  }, [lines, isAtBottom, checkIfAtBottom]);
+  }, [isAtBottom, checkIfAtBottom]);
 
   /**
    * Handle scroll event to track position.
@@ -129,24 +129,23 @@ function OutputTextBox({
   return (
     <div className="space-y-2">
       {/* Output text box */}
-      <div
+      <section
         ref={textBoxRef}
         style={{ height: `${heightPx}px` }}
         className="output-box w-full"
         onScroll={handleScroll}
-        role="region"
         aria-label={ariaLabel}
         aria-live="polite"
         aria-atomic="false"
       >
         {content}
-      </div>
+      </section>
 
       {/* Resize handle - desktop only */}
       <div className="hidden sm:block">
-        <div
+        <button
+          type="button"
           onMouseDown={handleResizeMouseDown}
-          role="button"
           tabIndex={0}
           aria-label="Resize output box height (drag or press arrow keys)"
           className="h-1 bg-gray-300 hover:bg-blue-500 cursor-row-resize rounded-sm transition-colors"
