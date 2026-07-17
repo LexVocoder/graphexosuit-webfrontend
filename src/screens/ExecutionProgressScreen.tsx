@@ -354,7 +354,8 @@ function ExecutionProgressScreen({
         >
           <h4 className="text-sm font-semibold text-green-900 mb-3">Execution Completed</h4>
           <div className="bg-white border border-green-200 rounded-md p-3 mb-4 overflow-auto max-h-64">
-            <pre className="font-mono text-sm text-gray-900">
+            {/* biome-ignore lint/a11y/useAriaPropsSupportedByRole: literal aria-label required by ExecutionProgressScreen.regression.test.tsx getByLabelText assertion */}
+            <pre className="font-mono text-sm text-gray-900" aria-label="Final result JSON">
               {JSON.stringify(finalResult, null, 2)}
             </pre>
           </div>
