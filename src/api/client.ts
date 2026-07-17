@@ -18,7 +18,7 @@ import {
 
 /** Get the API base URL from environment or default. */
 function getApiBaseUrl(): string {
-  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 }
 
 /** Create and export singleton axios instance. */
