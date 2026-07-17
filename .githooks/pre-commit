@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# Do not source bashrc with set -e, as it may contain commands that fail or reference unset variables, which would cause the pre-commit hook to fail unexpectedly.
+
+# Do this, because I use nvm to manage node versions, and nvm is loaded in bashrc. If we don't source bashrc, then the pre-commit hook will fail because it won't be able to find the correct version of node.
+
+if [ -f "$HOME/.bashrc" ]; then
+  source "$HOME/.bashrc"
+fi
+
+set -e
+
+# Skip if PRE_COMMIT_OVERRIDE is set
+if [ "$PRE_COMMIT_OVERRIDE" = '1' ]; then
+  echo '[pre-commit] Skipped (PRE_COMMIT_OVERRIDE=1)'
+  exit 0
+fi
+
+# Install npm dependencies
+
+# Check if node_modules directory exists
+if ! [ -d 'node_modules' ]; then
+  echo 'Installing dependencies...'
+  npm install || { echo '[pre-commit] error: npm install failed' >&2; exit 1; }
+fi
+
+printf 'Running pre-commit checks...\n'
+
+npm run lint:fix
+npm run format
+npm run lint -- --error-on-warnings
+npm test
+
+printf '\n[pre-commit] All checks passed!\n'
+cd - >/dev/null || { echo '[pre-commit] error: failed to return to original directory' >&2; exit 1; }
