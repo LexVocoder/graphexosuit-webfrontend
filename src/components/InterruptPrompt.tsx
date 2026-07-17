@@ -8,12 +8,12 @@
  *  - Invoke callback with selected option
  */
 
-import type { StandardizedInterrupt, InterruptOption } from '@/types/api';
+import type { StandardizedInterrupt, InterruptOption } from "@/types/api"
 
 interface InterruptPromptProps {
-  interrupt: StandardizedInterrupt;
-  selectedOption: InterruptOption | null;
-  onSelectOption: (option: InterruptOption) => void;
+  interrupt: StandardizedInterrupt
+  selectedOption: InterruptOption | null
+  onSelectOption: (option: InterruptOption) => void
 }
 
 /**
@@ -26,28 +26,20 @@ interface InterruptPromptProps {
  *   selectedOption: Currently selected option (if any).
  *   onSelectOption: Callback when user selects an option.
  */
-function InterruptPrompt({
-  interrupt,
-  selectedOption,
-  onSelectOption,
-}: InterruptPromptProps) {
+function InterruptPrompt({ interrupt, selectedOption, onSelectOption }: InterruptPromptProps) {
   return (
     <div className="space-y-4">
       {/* Interrupt message */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Graph Paused
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Graph Paused</h3>
         <p className="text-gray-700">{interrupt.message}</p>
       </div>
 
       {/* Options */}
       <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold text-gray-900">
-          Choose an option:
-        </legend>
+        <legend className="text-sm font-semibold text-gray-900">Choose an option:</legend>
 
-        {interrupt.options.map((option) => (
+        {interrupt.options.map(option => (
           <label
             key={option.label}
             className="flex items-center gap-3 p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
@@ -65,7 +57,7 @@ function InterruptPrompt({
         ))}
       </fieldset>
     </div>
-  );
+  )
 }
 
-export default InterruptPrompt;
+export default InterruptPrompt

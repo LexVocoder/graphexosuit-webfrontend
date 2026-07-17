@@ -1,15 +1,15 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "Run all tests",
-			"type": "shell",
-			"command": "npm test"
-		},
-		{
-			"label": "Run all tests and show summary",
-			"type": "shell",
-			"command": "npm test 2>&1 | tail -170"
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run all tests",
+      "type": "shell",
+      "command": "npm test"
+    },
+    {
+      "label": "Run all tests and show summary",
+      "type": "shell",
+      "command": "npm test 2>&1 | tail -170"
+    }
+  ]
 }

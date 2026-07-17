@@ -9,19 +9,19 @@
  *  - Display error toast on failure
  */
 
-import { useState, useEffect } from 'react';
-import Editor from '@monaco-editor/react';
-import { runGraph } from '@/api/client';
+import { useState, useEffect } from "react"
+import Editor from "@monaco-editor/react"
+import { runGraph } from "@/api/client"
 
 interface PreRunScreenProps {
-  onStartRun: (threadId: string) => void;
+  onStartRun: (threadId: string) => void
 }
 
 const DEFAULT_INITIAL_STATE = {
   initial_state: {
-    key: 'value',
+    key: "value",
   },
-};
+}
 
 /**
  * PreRunScreen component: Initial state input and graph launch.
@@ -34,43 +34,42 @@ const DEFAULT_INITIAL_STATE = {
 function PreRunScreen({ onStartRun }: PreRunScreenProps) {
   const [jsonContent, setJsonContent] = useState<string>(
     JSON.stringify(DEFAULT_INITIAL_STATE, null, 2)
-  );
-  const [isJsonValid, setIsJsonValid] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  )
+  const [isJsonValid, setIsJsonValid] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   /**
    * Validate JSON whenever content changes.
    */
   useEffect(() => {
     try {
-      JSON.parse(jsonContent);
-      setIsJsonValid(true);
+      JSON.parse(jsonContent)
+      setIsJsonValid(true)
     } catch {
-      setIsJsonValid(false);
+      setIsJsonValid(false)
     }
-  }, [jsonContent]);
+  }, [jsonContent])
 
   /**
    * Handle Run button click: parse JSON and invoke runGraph API.
    */
   const handleRun = async () => {
-    setError(null);
-    setIsLoading(true);
+    setError(null)
+    setIsLoading(true)
 
     try {
-      const parsedState = JSON.parse(jsonContent);
-      const response = await runGraph(parsedState);
-      onStartRun(response.thread_id);
+      const parsedState = JSON.parse(jsonContent)
+      const response = await runGraph(parsedState)
+      onStartRun(response.thread_id)
     } catch (err) {
       // Catch JSON parsing error or network error
-      const errorMessage =
-        err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(`Failed to start graph execution: ${errorMessage}`);
+      const errorMessage = err instanceof Error ? err.message : "Unknown error occurred"
+      setError(`Failed to start graph execution: ${errorMessage}`)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="py-8">
@@ -83,11 +82,7 @@ function PreRunScreen({ onStartRun }: PreRunScreenProps) {
 
       {/* Error Message */}
       {error && (
-        <div
-          className="error-message mb-6"
-          role="alert"
-          aria-live="assertive"
-        >
+        <div className="error-message mb-6" role="alert" aria-live="assertive">
           {error}
         </div>
       )}
@@ -98,13 +93,13 @@ function PreRunScreen({ onStartRun }: PreRunScreenProps) {
           height="400px"
           defaultLanguage="json"
           value={jsonContent}
-          onChange={(value) => setJsonContent(value || '')}
+          onChange={value => setJsonContent(value || "")}
           options={{
             minimap: { enabled: false },
-            wordWrap: 'on',
+            wordWrap: "on",
             fontFamily: 'Menlo, Monaco, "Courier New", monospace',
             fontSize: 13,
-            lineNumbers: 'on',
+            lineNumbers: "on",
             scrollBeyondLastLine: false,
             folding: true,
           }}
@@ -114,11 +109,7 @@ function PreRunScreen({ onStartRun }: PreRunScreenProps) {
 
       {/* Validation Error */}
       {!isJsonValid && (
-        <div
-          className="error-message mb-6"
-          role="alert"
-          aria-describedby="json-error"
-        >
+        <div className="error-message mb-6" role="alert" aria-describedby="json-error">
           <span id="json-error">Invalid JSON. Please fix the syntax.</span>
         </div>
       )}
@@ -130,17 +121,15 @@ function PreRunScreen({ onStartRun }: PreRunScreenProps) {
           onClick={handleRun}
           disabled={!isJsonValid || isLoading}
           className="btn-primary flex items-center gap-2"
-          aria-label={isLoading ? 'Starting graph execution...' : 'Run graph'}
+          aria-label={isLoading ? "Starting graph execution..." : "Run graph"}
           aria-busy={isLoading}
         >
-          {isLoading && (
-            <span className="spinner" aria-hidden="true"></span>
-          )}
-          {isLoading ? 'Running...' : 'Run'}
+          {isLoading && <span className="spinner" aria-hidden="true"></span>}
+          {isLoading ? "Running..." : "Run"}
         </button>
       </div>
     </div>
-  );
+  )
 }
 
-export default PreRunScreen;
+export default PreRunScreen

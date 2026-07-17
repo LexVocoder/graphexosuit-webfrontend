@@ -7,339 +7,328 @@
  *  - Test error/result display
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import ExecutionProgressScreen from '@/screens/ExecutionProgressScreen';
-import * as apiClient from '@/api/client';
-import { AppProvider } from '@/context/AppContext';
-import type { ExecutionData } from '@/types/api';
+import { describe, it, expect, vi, beforeEach } from "vitest"
+import { render, screen, waitFor, act } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
+import ExecutionProgressScreen from "@/screens/ExecutionProgressScreen"
+import * as apiClient from "@/api/client"
+import { AppProvider } from "@/context/AppContext"
+import type { ExecutionData } from "@/types/api"
 
-vi.mock('@/api/client');
-vi.mock('@monaco-editor/react', () => ({
+vi.mock("@/api/client")
+vi.mock("@monaco-editor/react", () => ({
   default: vi.fn(({ value, onChange }) => (
-    <textarea
-      data-testid="json-editor"
-      value={value}
-      onChange={(e) => onChange?.(e.target.value)}
-    />
+    <textarea data-testid="json-editor" value={value} onChange={e => onChange?.(e.target.value)} />
   )),
-}));
+}))
 
-describe('ExecutionProgressScreen', () => {
-  const mockOnResetToPreRun = vi.fn();
-  const threadId = 'test-thread-123';
+describe("ExecutionProgressScreen", () => {
+  const mockOnResetToPreRun = vi.fn()
+  const threadId = "test-thread-123"
 
   beforeEach(() => {
-    mockOnResetToPreRun.mockClear();
-    vi.clearAllMocks();
-  });
+    mockOnResetToPreRun.mockClear()
+    vi.clearAllMocks()
+  })
 
   const renderScreen = () => {
     return render(
       <AppProvider>
-        <ExecutionProgressScreen
-          threadId={threadId}
-          onResetToPreRun={mockOnResetToPreRun}
-        />
+        <ExecutionProgressScreen threadId={threadId} onResetToPreRun={mockOnResetToPreRun} />
       </AppProvider>
-    );
-  };
+    )
+  }
 
-  it('should render header with thread ID', async () => {
+  it("should render header with thread ID", async () => {
     vi.mocked(apiClient.pollThread).mockResolvedValueOnce({
-      status: 'running',
+      status: "running",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
-    });
+      created_at: "2024-01-01T00:00:00Z",
+    })
 
-    renderScreen();
+    renderScreen()
 
     await waitFor(() => {
-      expect(screen.getByText('Execution Progress')).toBeInTheDocument();
-      expect(screen.getByText(new RegExp(threadId))).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText("Execution Progress")).toBeInTheDocument()
+      expect(screen.getByText(new RegExp(threadId))).toBeInTheDocument()
+    })
+  })
 
-  it('should display running status badge', async () => {
+  it("should display running status badge", async () => {
     vi.mocked(apiClient.pollThread).mockResolvedValueOnce({
-      status: 'running',
+      status: "running",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
-    });
+      created_at: "2024-01-01T00:00:00Z",
+    })
 
-    renderScreen();
+    renderScreen()
 
     await waitFor(() => {
-      expect(screen.getByText('Running')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText("Running")).toBeInTheDocument()
+    })
+  })
 
-  it('should display polling interval control', async () => {
+  it("should display polling interval control", async () => {
     vi.mocked(apiClient.pollThread).mockResolvedValueOnce({
-      status: 'running',
+      status: "running",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
-    });
+      created_at: "2024-01-01T00:00:00Z",
+    })
 
-    renderScreen();
+    renderScreen()
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/polling interval slider/i)).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByLabelText(/polling interval slider/i)).toBeInTheDocument()
+    })
+  })
 
-  it('should display output lines', async () => {
-    const outputLines = ['line 1', 'line 2', 'line 3'];
+  it("should display output lines", async () => {
+    const outputLines = ["line 1", "line 2", "line 3"]
     vi.mocked(apiClient.pollThread).mockResolvedValueOnce({
-      status: 'running',
+      status: "running",
       output_lines: outputLines,
-      created_at: '2024-01-01T00:00:00Z',
-    });
+      created_at: "2024-01-01T00:00:00Z",
+    })
 
-    renderScreen();
+    renderScreen()
 
     await waitFor(() => {
-      const outputBox = screen.getByRole('region', {
+      const outputBox = screen.getByRole("region", {
         name: /execution output/i,
-      });
-      expect(outputBox.textContent).toContain('line 1');
-      expect(outputBox.textContent).toContain('line 2');
-      expect(outputBox.textContent).toContain('line 3');
-    });
-  });
+      })
+      expect(outputBox.textContent).toContain("line 1")
+      expect(outputBox.textContent).toContain("line 2")
+      expect(outputBox.textContent).toContain("line 3")
+    })
+  })
 
-  it('should display paused status with interrupt prompt', async () => {
+  it("should display paused status with interrupt prompt", async () => {
     const interruptData: ExecutionData = {
-      status: 'paused',
+      status: "paused",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
+      created_at: "2024-01-01T00:00:00Z",
       result: {
         thread_id: threadId,
-        checkpoint_id: 'ckpt123',
+        checkpoint_id: "ckpt123",
         interrupt_value: {
-          message: 'Choose a flavor',
+          message: "Choose a flavor",
           options: [
-            { label: 'Chocolate', payload: { flavor: 'chocolate' } },
-            { label: 'Vanilla', payload: { flavor: 'vanilla' } },
+            { label: "Chocolate", payload: { flavor: "chocolate" } },
+            { label: "Vanilla", payload: { flavor: "vanilla" } },
           ],
         },
       },
-    };
+    }
 
-    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(interruptData);
+    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(interruptData)
 
-    renderScreen();
+    renderScreen()
 
     await waitFor(() => {
-      expect(screen.getByText('Graph Paused')).toBeInTheDocument();
-      expect(screen.getByText('Choose a flavor')).toBeInTheDocument();
-      expect(screen.getByLabelText('Chocolate')).toBeInTheDocument();
-      expect(screen.getByLabelText('Vanilla')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText("Graph Paused")).toBeInTheDocument()
+      expect(screen.getByText("Choose a flavor")).toBeInTheDocument()
+      expect(screen.getByLabelText("Chocolate")).toBeInTheDocument()
+      expect(screen.getByLabelText("Vanilla")).toBeInTheDocument()
+    })
+  })
 
-  it('should allow selecting interrupt option', async () => {
-    const user = userEvent.setup();
+  it("should allow selecting interrupt option", async () => {
+    const user = userEvent.setup()
     const interruptData: ExecutionData = {
-      status: 'paused',
+      status: "paused",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
+      created_at: "2024-01-01T00:00:00Z",
       result: {
         thread_id: threadId,
-        checkpoint_id: 'ckpt123',
+        checkpoint_id: "ckpt123",
         interrupt_value: {
-          message: 'Choose flavor',
-          options: [{ label: 'Chocolate', payload: { flavor: 'chocolate' } }],
+          message: "Choose flavor",
+          options: [{ label: "Chocolate", payload: { flavor: "chocolate" } }],
         },
       },
-    };
+    }
 
-    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(interruptData);
+    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(interruptData)
 
-    renderScreen();
-
-    await waitFor(() => {
-      expect(screen.getByLabelText('Chocolate')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByLabelText('Chocolate'));
+    renderScreen()
 
     await waitFor(() => {
-      expect(screen.getByText('Edit Resume Payload')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByLabelText("Chocolate")).toBeInTheDocument()
+    })
 
-  it('should call resumeThread on Resume button click', async () => {
-    const user = userEvent.setup();
+    await user.click(screen.getByLabelText("Chocolate"))
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit Resume Payload")).toBeInTheDocument()
+    })
+  })
+
+  it("should call resumeThread on Resume button click", async () => {
+    const user = userEvent.setup()
     const interruptData: ExecutionData = {
-      status: 'paused',
+      status: "paused",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
+      created_at: "2024-01-01T00:00:00Z",
       result: {
         thread_id: threadId,
-        checkpoint_id: 'ckpt123',
+        checkpoint_id: "ckpt123",
         interrupt_value: {
-          message: 'Choose',
-          options: [{ label: 'Option', payload: { key: 'value' } }],
+          message: "Choose",
+          options: [{ label: "Option", payload: { key: "value" } }],
         },
       },
-    };
+    }
 
-    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(interruptData);
+    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(interruptData)
     vi.mocked(apiClient.resumeThread).mockResolvedValueOnce({
       thread_id: threadId,
       poll_url: `/thread/${threadId}`,
-    });
+    })
 
-    renderScreen();
-
-    await waitFor(() => {
-      expect(screen.getByLabelText('Option')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByLabelText('Option'));
+    renderScreen()
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /resume/i })).toBeInTheDocument();
-    });
+      expect(screen.getByLabelText("Option")).toBeInTheDocument()
+    })
 
-    await user.click(screen.getByRole('button', { name: /resume/i }));
+    await user.click(screen.getByLabelText("Option"))
 
     await waitFor(() => {
-      expect(apiClient.resumeThread).toHaveBeenCalledWith(
-        threadId,
-        'ckpt123',
-        { key: 'value' }
-      );
-    });
-  });
+      expect(screen.getByRole("button", { name: /resume/i })).toBeInTheDocument()
+    })
 
-  it('should display error status with error message', async () => {
+    await user.click(screen.getByRole("button", { name: /resume/i }))
+
+    await waitFor(() => {
+      expect(apiClient.resumeThread).toHaveBeenCalledWith(threadId, "ckpt123", { key: "value" })
+    })
+  })
+
+  it("should display error status with error message", async () => {
     const errorData: ExecutionData = {
-      status: 'error',
+      status: "error",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
+      created_at: "2024-01-01T00:00:00Z",
       error: {
-        message: 'Node execution failed',
-        checkpoint_id: 'ckpt123',
+        message: "Node execution failed",
+        checkpoint_id: "ckpt123",
         thread_id: threadId,
       },
-    };
+    }
 
-    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(errorData);
+    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(errorData)
 
-    renderScreen();
+    renderScreen()
 
     await waitFor(() => {
-      expect(screen.getByText('Node execution failed')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText("Node execution failed")).toBeInTheDocument()
+    })
+  })
 
-  it('should display completed status with result', async () => {
+  it("should display completed status with result", async () => {
     const completedData: ExecutionData = {
-      status: 'completed',
+      status: "completed",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
+      created_at: "2024-01-01T00:00:00Z",
       result: {
         thread_id: threadId,
-        final_result: { outcome: 'success', data: [1, 2, 3] },
+        final_result: { outcome: "success", data: [1, 2, 3] },
       },
-    };
+    }
 
-    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(completedData);
+    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(completedData)
 
-    renderScreen();
+    renderScreen()
 
     await waitFor(() => {
-      expect(screen.getByText('Execution Completed')).toBeInTheDocument();
-      expect(screen.getByText(/success/)).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText("Execution Completed")).toBeInTheDocument()
+      expect(screen.getByText(/success/)).toBeInTheDocument()
+    })
+  })
 
-  it('should display Start Over button on completion', async () => {
+  it("should display Start Over button on completion", async () => {
     const completedData: ExecutionData = {
-      status: 'completed',
+      status: "completed",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
+      created_at: "2024-01-01T00:00:00Z",
       result: {
         thread_id: threadId,
-        final_result: { result: 'done' },
+        final_result: { result: "done" },
       },
-    };
+    }
 
-    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(completedData);
+    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(completedData)
 
-    renderScreen();
+    renderScreen()
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /start over/i })).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByRole("button", { name: /start over/i })).toBeInTheDocument()
+    })
+  })
 
-  it('should call onResetToPreRun on Start Over button click', async () => {
-    const user = userEvent.setup();
+  it("should call onResetToPreRun on Start Over button click", async () => {
+    const user = userEvent.setup()
     const completedData: ExecutionData = {
-      status: 'completed',
+      status: "completed",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
+      created_at: "2024-01-01T00:00:00Z",
       result: {
         thread_id: threadId,
-        final_result: { result: 'done' },
+        final_result: { result: "done" },
       },
-    };
+    }
 
-    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(completedData);
+    vi.mocked(apiClient.pollThread).mockResolvedValueOnce(completedData)
 
-    renderScreen();
+    renderScreen()
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /start over/i })).toBeInTheDocument();
-    });
+      expect(screen.getByRole("button", { name: /start over/i })).toBeInTheDocument()
+    })
 
-    await user.click(screen.getByRole('button', { name: /start over/i }));
+    await user.click(screen.getByRole("button", { name: /start over/i }))
 
-    expect(mockOnResetToPreRun).toHaveBeenCalled();
-  });
+    expect(mockOnResetToPreRun).toHaveBeenCalled()
+  })
 
-  it('should stop polling when status becomes paused (regression: user can interact with interrupt prompt)', async () => {
-    vi.useFakeTimers();
+  it("should stop polling when status becomes paused (regression: user can interact with interrupt prompt)", async () => {
+    vi.useFakeTimers()
 
     const pausedData: ExecutionData = {
-      status: 'paused',
+      status: "paused",
       output_lines: [],
-      created_at: '2024-01-01T00:00:00Z',
+      created_at: "2024-01-01T00:00:00Z",
       result: {
         thread_id: threadId,
-        checkpoint_id: 'ckpt123',
+        checkpoint_id: "ckpt123",
         interrupt_value: {
-          message: 'Choose an action',
-          options: [{ label: 'Proceed', payload: { action: 'proceed' } }],
+          message: "Choose an action",
+          options: [{ label: "Proceed", payload: { action: "proceed" } }],
         },
       },
-    };
+    }
 
-    vi.mocked(apiClient.pollThread).mockResolvedValue(pausedData);
+    vi.mocked(apiClient.pollThread).mockResolvedValue(pausedData)
 
-    renderScreen();
+    renderScreen()
 
     // Flush the initial poll promise
     await act(async () => {
-      await Promise.resolve();
-    });
+      await Promise.resolve()
+    })
 
-    expect(apiClient.pollThread).toHaveBeenCalledTimes(1);
+    expect(apiClient.pollThread).toHaveBeenCalledTimes(1)
 
     // Advance time well past the default polling interval (1000ms)
     await act(async () => {
-      vi.advanceTimersByTime(5000);
-      await Promise.resolve();
-    });
+      vi.advanceTimersByTime(5000)
+      await Promise.resolve()
+    })
 
     // Regression: polling must not fire again while paused, so the user
     // can select an option and click Resume without the UI being overwritten.
-    expect(apiClient.pollThread).toHaveBeenCalledTimes(1);
+    expect(apiClient.pollThread).toHaveBeenCalledTimes(1)
 
-    vi.useRealTimers();
-  });
-});
+    vi.useRealTimers()
+  })
+})

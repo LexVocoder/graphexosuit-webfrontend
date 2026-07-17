@@ -8,12 +8,12 @@
  *  - Maintain thread_id state across screens
  */
 
-import { useState } from 'react';
-import { AppProvider } from '@/context/AppContext';
-import PreRunScreen from '@/screens/PreRunScreen';
-import ExecutionProgressScreen from '@/screens/ExecutionProgressScreen';
+import { useState } from "react"
+import { AppProvider } from "@/context/AppContext"
+import PreRunScreen from "@/screens/PreRunScreen"
+import ExecutionProgressScreen from "@/screens/ExecutionProgressScreen"
 
-type CurrentScreen = 'pre-run' | 'execution-progress';
+type CurrentScreen = "pre-run" | "execution-progress"
 
 /**
  * App component: Root of application with screen router.
@@ -21,24 +21,24 @@ type CurrentScreen = 'pre-run' | 'execution-progress';
  * Why: Manages top-level state (current screen, thread_id) and navigates between screens.
  */
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<CurrentScreen>('pre-run');
-  const [threadId, setThreadId] = useState<string | null>(null);
+  const [currentScreen, setCurrentScreen] = useState<CurrentScreen>("pre-run")
+  const [threadId, setThreadId] = useState<string | null>(null)
 
   /**
    * Handle starting a run: transition to execution-progress screen.
    */
   const handleStartRun = (newThreadId: string) => {
-    setThreadId(newThreadId);
-    setCurrentScreen('execution-progress');
-  };
+    setThreadId(newThreadId)
+    setCurrentScreen("execution-progress")
+  }
 
   /**
    * Handle returning to pre-run screen (Start Over button).
    */
   const handleResetToPreRun = () => {
-    setThreadId(null);
-    setCurrentScreen('pre-run');
-  };
+    setThreadId(null)
+    setCurrentScreen("pre-run")
+  }
 
   return (
     <AppProvider>
@@ -50,19 +50,14 @@ function App() {
         </header>
 
         <main className="container-centered safe-container">
-          {currentScreen === 'pre-run' && (
-            <PreRunScreen onStartRun={handleStartRun} />
-          )}
-          {currentScreen === 'execution-progress' && threadId && (
-            <ExecutionProgressScreen
-              threadId={threadId}
-              onResetToPreRun={handleResetToPreRun}
-            />
+          {currentScreen === "pre-run" && <PreRunScreen onStartRun={handleStartRun} />}
+          {currentScreen === "execution-progress" && threadId && (
+            <ExecutionProgressScreen threadId={threadId} onResetToPreRun={handleResetToPreRun} />
           )}
         </main>
       </div>
     </AppProvider>
-  );
+  )
 }
 
-export default App;
+export default App

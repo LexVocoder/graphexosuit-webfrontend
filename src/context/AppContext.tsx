@@ -7,19 +7,19 @@
  *  - Limited scope: Only manages polling interval; all other state is local to screens/components
  */
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from "react"
 
 /** App context shape. */
 interface AppContextType {
-  pollingInterval: number;
-  updatePollingInterval: (interval: number) => void;
+  pollingInterval: number
+  updatePollingInterval: (interval: number) => void
 }
 
 /** Create context with undefined default (catch missing provider). */
-const AppContext = createContext<AppContextType | undefined>(undefined);
+const AppContext = createContext<AppContextType | undefined>(undefined)
 
 interface AppProviderProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 /**
@@ -31,19 +31,19 @@ interface AppProviderProps {
  *   children: React components to render within provider.
  */
 export function AppProvider({ children }: AppProviderProps) {
-  const [pollingInterval, setPollingInterval] = useState<number>(1000);
+  const [pollingInterval, setPollingInterval] = useState<number>(1000)
 
   const updatePollingInterval = (interval: number) => {
     // Constrain to valid range: 250-10000ms
-    const clamped = Math.max(250, Math.min(10000, interval));
-    setPollingInterval(clamped);
-  };
+    const clamped = Math.max(250, Math.min(10000, interval))
+    setPollingInterval(clamped)
+  }
 
   return (
     <AppContext.Provider value={{ pollingInterval, updatePollingInterval }}>
       {children}
     </AppContext.Provider>
-  );
+  )
 }
 
 /**
@@ -58,9 +58,9 @@ export function AppProvider({ children }: AppProviderProps) {
  *   If called outside AppProvider.
  */
 export function useAppContext(): AppContextType {
-  const context = useContext(AppContext);
+  const context = useContext(AppContext)
   if (context === undefined) {
-    throw new Error('useAppContext must be used within AppProvider');
+    throw new Error("useAppContext must be used within AppProvider")
   }
-  return context;
+  return context
 }

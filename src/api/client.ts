@@ -8,26 +8,21 @@
  *  - Provide configurable API base URL via environment
  */
 
-import axios, { type AxiosInstance } from 'axios';
-import type {
-  ExecutionData,
-  RunResponse,
-  ResumeResponse,
-  RetryResponse,
-} from '@/types/api';
+import axios, { type AxiosInstance } from "axios"
+import type { ExecutionData, RunResponse, ResumeResponse, RetryResponse } from "@/types/api"
 
 /** Get the API base URL from environment or default. */
 function getApiBaseUrl(): string {
-  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+  return import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1"
 }
 
 /** Create and export singleton axios instance. */
 const apiClient: AxiosInstance = axios.create({
   baseURL: getApiBaseUrl(),
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-});
+})
 
 /**
  * Start a new graph execution.
@@ -44,8 +39,8 @@ const apiClient: AxiosInstance = axios.create({
  *   If HTTP request fails (e.g., 500, network error).
  */
 export async function runGraph(parameters: unknown): Promise<RunResponse> {
-  const response = await apiClient.post<RunResponse>('/run', parameters);
-  return response.data;
+  const response = await apiClient.post<RunResponse>("/run", parameters)
+  return response.data
 }
 
 /**
@@ -63,8 +58,8 @@ export async function runGraph(parameters: unknown): Promise<RunResponse> {
  *   If HTTP request fails or thread not found (404).
  */
 export async function pollThread(threadId: string): Promise<ExecutionData> {
-  const response = await apiClient.get<ExecutionData>(`/thread/${threadId}`);
-  return response.data;
+  const response = await apiClient.get<ExecutionData>(`/thread/${threadId}`)
+  return response.data
 }
 
 /**
@@ -91,8 +86,8 @@ export async function resumeThread(
   const response = await apiClient.post<ResumeResponse>(
     `/thread/${threadId}/checkpoint/${checkpointId}/resume`,
     resumeValue
-  );
-  return response.data;
+  )
+  return response.data
 }
 
 /**
@@ -110,12 +105,9 @@ export async function resumeThread(
  * Throws:
  *   If HTTP request fails or thread/checkpoint not found.
  */
-export async function retryThread(
-  threadId: string,
-  checkpointId: string
-): Promise<RetryResponse> {
+export async function retryThread(threadId: string, checkpointId: string): Promise<RetryResponse> {
   const response = await apiClient.post<RetryResponse>(
     `/thread/${threadId}/checkpoint/${checkpointId}/retry`
-  );
-  return response.data;
+  )
+  return response.data
 }

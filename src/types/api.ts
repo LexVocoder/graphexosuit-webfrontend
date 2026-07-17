@@ -8,58 +8,58 @@
  */
 
 /** Execution status states. */
-export type ExecutionStatus = 'running' | 'paused' | 'completed' | 'error';
+export type ExecutionStatus = "running" | "paused" | "completed" | "error"
 
 /** An interrupt option available when execution pauses. */
 export interface InterruptOption {
-  label: string;
-  payload: unknown;
+  label: string
+  payload: unknown
 }
 
 /** Standardized interrupt structure returned by backend. */
 export interface StandardizedInterrupt {
-  message: string;
-  options: InterruptOption[];
+  message: string
+  options: InterruptOption[]
 }
 
 /** Result of a successful graph execution. */
 export interface RunResult {
-  thread_id: string;
-  checkpoint_id?: string;
-  interrupt_value?: StandardizedInterrupt;
-  final_result?: unknown;
+  thread_id: string
+  checkpoint_id?: string
+  interrupt_value?: StandardizedInterrupt
+  final_result?: unknown
 }
 
 /** Error information from backend. */
 export interface ExecutionError {
-  message: string;
-  checkpoint_id?: string;
-  thread_id?: string;
+  message: string
+  checkpoint_id?: string
+  thread_id?: string
 }
 
 /** Polling response from GET /thread/{thread_id}. */
 export interface ExecutionData {
-  created_at: string;
-  status: ExecutionStatus;
-  error?: ExecutionError | null;
-  result?: RunResult | null;
-  output_lines: string[];
+  created_at: string
+  status: ExecutionStatus
+  error?: ExecutionError | null
+  result?: RunResult | null
+  output_lines: string[]
 }
 
 /** Response from POST /run. */
 export interface RunResponse {
-  thread_id: string;
-  poll_url: string;
+  thread_id: string
+  poll_url: string
 }
 
 /** Response from POST /thread/{thread_id}/checkpoint/{checkpoint_id}/resume. */
 export interface ResumeResponse {
-  thread_id: string;
-  poll_url: string;
+  thread_id: string
+  poll_url: string
 }
 
 /** Response from POST /thread/{thread_id}/checkpoint/{checkpoint_id}/retry. */
 export interface RetryResponse {
-  thread_id: string;
-  poll_url: string;
+  thread_id: string
+  poll_url: string
 }

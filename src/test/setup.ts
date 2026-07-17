@@ -7,19 +7,19 @@
  *  - Mock external dependencies
  */
 
-import { afterEach, vi } from 'vitest';
-import { cleanup } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { afterEach, vi } from "vitest"
+import { cleanup } from "@testing-library/react"
+import "@testing-library/jest-dom"
 
 // ## Cleanup after each test
 afterEach(() => {
-  cleanup();
-  vi.clearAllMocks();
-  localStorage.clear();
-});
+  cleanup()
+  vi.clearAllMocks()
+  localStorage.clear()
+})
 
 // Mock window.matchMedia for responsive design tests
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation(query => ({
     matches: false,
@@ -31,26 +31,26 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-});
+})
 
 // Mock localStorage
 const localStorageMock = (() => {
-  let store: Record<string, string> = {};
+  let store: Record<string, string> = {}
 
   return {
     getItem: (key: string) => store[key] || null,
     setItem: (key: string, value: string) => {
-      store[key] = value.toString();
+      store[key] = value.toString()
     },
     removeItem: (key: string) => {
-      delete store[key];
+      delete store[key]
     },
     clear: () => {
-      store = {};
+      store = {}
     },
-  };
-})();
+  }
+})()
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
-});
+})

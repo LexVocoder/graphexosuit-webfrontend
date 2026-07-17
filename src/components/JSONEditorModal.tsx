@@ -8,12 +8,12 @@
  *  - Update parent component with edited JSON
  */
 
-import Editor from '@monaco-editor/react';
+import Editor from "@monaco-editor/react"
 
 interface JSONEditorModalProps {
-  value: string;
-  onChange: (value: string) => void;
-  isValid: boolean;
+  value: string
+  onChange: (value: string) => void
+  isValid: boolean
 }
 
 /**
@@ -35,13 +35,13 @@ function JSONEditorModal({ value, onChange, isValid }: JSONEditorModalProps) {
           height="300px"
           defaultLanguage="json"
           value={value}
-          onChange={(val) => onChange(val || '')}
+          onChange={val => onChange(val || "")}
           options={{
             minimap: { enabled: false },
-            wordWrap: 'on',
+            wordWrap: "on",
             fontFamily: 'Menlo, Monaco, "Courier New", monospace',
             fontSize: 13,
-            lineNumbers: 'on',
+            lineNumbers: "on",
             scrollBeyondLastLine: false,
             folding: true,
           }}
@@ -51,23 +51,17 @@ function JSONEditorModal({ value, onChange, isValid }: JSONEditorModalProps) {
 
       {/* Validation status */}
       {!isValid && (
-        <div
-          className="error-message text-xs"
-          role="alert"
-        >
+        <div className="error-message text-xs" role="alert">
           ✗ Invalid JSON
         </div>
       )}
       {isValid && value && (
-        <div
-          className="success-message text-xs"
-          role="status"
-        >
+        <div className="success-message text-xs" role="status">
           ✓ Valid JSON
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default JSONEditorModal;
+export default JSONEditorModal

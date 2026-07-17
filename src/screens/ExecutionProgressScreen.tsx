@@ -12,23 +12,23 @@
  *  - Polling interval control slider
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { pollThread, resumeThread, retryThread } from '@/api/client';
+import { useState, useEffect, useRef, useCallback } from "react"
+import { pollThread, resumeThread, retryThread } from "@/api/client"
 import type {
   ExecutionData,
   ExecutionStatus,
   StandardizedInterrupt,
   InterruptOption,
-} from '@/types/api';
-import { useAppContext } from '@/context/AppContext';
-import OutputTextBox from '@/components/OutputTextBox';
-import InterruptPrompt from '@/components/InterruptPrompt';
-import JSONEditorModal from '@/components/JSONEditorModal';
-import StatusBadge from '@/components/StatusBadge';
+} from "@/types/api"
+import { useAppContext } from "@/context/AppContext"
+import OutputTextBox from "@/components/OutputTextBox"
+import InterruptPrompt from "@/components/InterruptPrompt"
+import JSONEditorModal from "@/components/JSONEditorModal"
+import StatusBadge from "@/components/StatusBadge"
 
 interface ExecutionProgressScreenProps {
-  threadId: string;
-  onResetToPreRun: () => void;
+  threadId: string
+  onResetToPreRun: () => void
 }
 
 /**
@@ -45,188 +45,180 @@ function ExecutionProgressScreen({
   threadId,
   onResetToPreRun,
 }: ExecutionProgressScreenProps): JSX.Element {
-  const { pollingInterval, updatePollingInterval } = useAppContext();
+  const { pollingInterval, updatePollingInterval } = useAppContext()
 
   // Execution state
-  const [status, setStatus] = useState<ExecutionStatus>('running');
-  const [outputLines, setOutputLines] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [finalResult, setFinalResult] = useState<unknown>(null);
-  const [interrupt, setInterrupt] = useState<StandardizedInterrupt | null>(
-    null
-  );
-  const [checkpointId, setCheckpointId] = useState<string | null>(null);
+  const [status, setStatus] = useState<ExecutionStatus>("running")
+  const [outputLines, setOutputLines] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [finalResult, setFinalResult] = useState<unknown>(null)
+  const [interrupt, setInterrupt] = useState<StandardizedInterrupt | null>(null)
+  const [checkpointId, setCheckpointId] = useState<string | null>(null)
 
   // UI state
-  const [selectedInterruptOption, setSelectedInterruptOption] =
-    useState<InterruptOption | null>(null);
-  const [resumeJsonContent, setResumeJsonContent] = useState<string>('');
-  const [isResumeJsonValid, setIsResumeJsonValid] = useState(true);
-  const [isResuming, setIsResuming] = useState(false);
-  const [isRetrying, setIsRetrying] = useState(false);
-  const [pollingError, setPollingError] = useState<string | null>(null);
-  const [outputBoxHeight, setOutputBoxHeight] = useState(25);
+  const [selectedInterruptOption, setSelectedInterruptOption] = useState<InterruptOption | null>(
+    null
+  )
+  const [resumeJsonContent, setResumeJsonContent] = useState<string>("")
+  const [isResumeJsonValid, setIsResumeJsonValid] = useState(true)
+  const [isResuming, setIsResuming] = useState(false)
+  const [isRetrying, setIsRetrying] = useState(false)
+  const [pollingError, setPollingError] = useState<string | null>(null)
+  const [outputBoxHeight, setOutputBoxHeight] = useState(25)
 
   // Refs for polling control
-  const pollAbortControllerRef = useRef<AbortController | null>(null);
-  const lastOutputCountRef = useRef(0);
+  const pollAbortControllerRef = useRef<AbortController | null>(null)
+  const lastOutputCountRef = useRef(0)
 
   /**
    * Validate JSON in resume editor.
    */
   useEffect(() => {
     if (!resumeJsonContent) {
-      setIsResumeJsonValid(true);
-      return;
+      setIsResumeJsonValid(true)
+      return
     }
     try {
-      JSON.parse(resumeJsonContent);
-      setIsResumeJsonValid(true);
+      JSON.parse(resumeJsonContent)
+      setIsResumeJsonValid(true)
     } catch {
-      setIsResumeJsonValid(false);
+      setIsResumeJsonValid(false)
     }
-  }, [resumeJsonContent]);
+  }, [resumeJsonContent])
 
   /**
    * When interrupt option is selected, preload its payload into JSON editor.
    */
   useEffect(() => {
     if (selectedInterruptOption) {
-      setResumeJsonContent(
-        JSON.stringify(selectedInterruptOption.payload, null, 2)
-      );
+      setResumeJsonContent(JSON.stringify(selectedInterruptOption.payload, null, 2))
     }
-  }, [selectedInterruptOption]);
+  }, [selectedInterruptOption])
 
   /**
    * Main polling loop: Fetch execution data, update state, stop on completion/error.
    */
   const poll = useCallback(async () => {
     try {
-      setPollingError(null);
-      const data: ExecutionData = await pollThread(threadId);
+      setPollingError(null)
+      const data: ExecutionData = await pollThread(threadId)
 
       // Update status
-      setStatus(data.status);
+      setStatus(data.status)
 
       // Append new output lines (avoid duplicates)
       // TODO: replace contents with all of data.output_lines in case the execution data store is reset (e.g., the {thread}.output_lines key hits its TTL) while the frontend is still open
       if (data.output_lines && data.output_lines.length > lastOutputCountRef.current) {
-        const newLines = data.output_lines.slice(lastOutputCountRef.current);
-        setOutputLines((prev) => [...prev, ...newLines]);
-        lastOutputCountRef.current = data.output_lines.length;
+        const newLines = data.output_lines.slice(lastOutputCountRef.current)
+        setOutputLines(prev => [...prev, ...newLines])
+        lastOutputCountRef.current = data.output_lines.length
       }
 
       // Handle status-specific updates
-      if (data.status === 'paused' && data.result?.interrupt_value) {
-        const interruptValue = data.result.interrupt_value;
-        setInterrupt(interruptValue);
-        setCheckpointId(data.result.checkpoint_id || null);
-        setSelectedInterruptOption(null); // Reset selection
-      } else if (data.status === 'completed' && data.result?.final_result) {
-        setFinalResult(data.result.final_result);
-      } else if (data.status === 'error' && data.error) {
-        setError(data.error.message);
-        setCheckpointId(data.error.checkpoint_id || null);
+      if (data.status === "paused" && data.result?.interrupt_value) {
+        const interruptValue = data.result.interrupt_value
+        setInterrupt(interruptValue)
+        setCheckpointId(data.result.checkpoint_id || null)
+        setSelectedInterruptOption(null) // Reset selection
+      } else if (data.status === "completed" && data.result?.final_result) {
+        setFinalResult(data.result.final_result)
+      } else if (data.status === "error" && data.error) {
+        setError(data.error.message)
+        setCheckpointId(data.error.checkpoint_id || null)
       }
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Polling failed';
-      setPollingError(`Polling error: ${errorMessage}`);
+      const errorMessage = err instanceof Error ? err.message : "Polling failed"
+      setPollingError(`Polling error: ${errorMessage}`)
     }
-  }, [threadId]);
+  }, [threadId])
 
   /**
    * Setup polling interval.
    */
   useEffect(() => {
     // Don't poll if execution is complete, in error, or paused awaiting user input
-    if (status === 'completed' || status === 'error' || status === 'paused') {
-      return;
+    if (status === "completed" || status === "error" || status === "paused") {
+      return
     }
 
     // Create abort controller for this polling cycle
-    pollAbortControllerRef.current = new AbortController();
+    pollAbortControllerRef.current = new AbortController()
 
     // Initial poll immediately
     poll().catch(() => {
       // Error already handled in poll()
-    });
+    })
 
     // Set up interval for subsequent polls
     const intervalId = setInterval(() => {
       poll().catch(() => {
         // Error already handled in poll()
-      });
-    }, pollingInterval);
+      })
+    }, pollingInterval)
 
     // Cleanup on unmount or when status/interval changes
     return () => {
-      clearInterval(intervalId);
-      pollAbortControllerRef.current?.abort();
-    };
-  }, [poll, pollingInterval, status]);
+      clearInterval(intervalId)
+      pollAbortControllerRef.current?.abort()
+    }
+  }, [poll, pollingInterval, status])
 
   /**
    * Handle Resume button click: send edited JSON payload and resume execution.
    */
   const handleResume = async () => {
     if (!checkpointId || !isResumeJsonValid) {
-      return;
+      return
     }
 
-    setPollingError(null);
-    setIsResuming(true);
+    setPollingError(null)
+    setIsResuming(true)
 
     try {
-      const payload = JSON.parse(resumeJsonContent);
-      await resumeThread(threadId, checkpointId, payload);
+      const payload = JSON.parse(resumeJsonContent)
+      await resumeThread(threadId, checkpointId, payload)
       // Clear interrupt state and continue polling
-      setInterrupt(null);
-      setSelectedInterruptOption(null);
-      setResumeJsonContent('');
-      setStatus('running');
+      setInterrupt(null)
+      setSelectedInterruptOption(null)
+      setResumeJsonContent("")
+      setStatus("running")
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Resume failed';
-      setPollingError(`Failed to resume: ${errorMessage}`);
+      const errorMessage = err instanceof Error ? err.message : "Resume failed"
+      setPollingError(`Failed to resume: ${errorMessage}`)
     } finally {
-      setIsResuming(false);
+      setIsResuming(false)
     }
-  };
+  }
 
   /**
    * Handle Retry button click: retry from checkpoint.
    */
   const handleRetry = async () => {
     if (!checkpointId) {
-      return;
+      return
     }
 
-    setPollingError(null);
-    setIsRetrying(true);
+    setPollingError(null)
+    setIsRetrying(true)
 
     try {
-      await retryThread(threadId, checkpointId);
+      await retryThread(threadId, checkpointId)
       // Clear error state and continue polling
-      setError(null);
-      setStatus('running');
+      setError(null)
+      setStatus("running")
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Retry failed';
-      setPollingError(`Failed to retry: ${errorMessage}`);
+      const errorMessage = err instanceof Error ? err.message : "Retry failed"
+      setPollingError(`Failed to retry: ${errorMessage}`)
     } finally {
-      setIsRetrying(false);
+      setIsRetrying(false)
     }
-  };
+  }
 
   return (
     <div className="py-8">
       <div className="flex-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Execution Progress
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Execution Progress</h2>
           <p className="text-gray-600 text-sm">
             Thread ID: <code className="font-mono">{threadId}</code>
           </p>
@@ -249,25 +241,18 @@ function ExecutionProgressScreen({
             max="10000"
             step="100"
             value={pollingInterval}
-            onChange={(e) => updatePollingInterval(Number(e.target.value))}
+            onChange={e => updatePollingInterval(Number(e.target.value))}
             className="flex-1"
             aria-label="Polling interval slider"
           />
-          <span
-            className="text-sm font-mono text-gray-700 w-16 text-right"
-            aria-live="polite"
-          >
+          <span className="text-sm font-mono text-gray-700 w-16 text-right" aria-live="polite">
             {pollingInterval} ms
           </span>
         </div>
       </div>
 
       {pollingError && (
-        <div
-          className="error-message mb-6"
-          role="alert"
-          aria-live="assertive"
-        >
+        <div className="error-message mb-6" role="alert" aria-live="assertive">
           {pollingError}
         </div>
       )}
@@ -281,8 +266,11 @@ function ExecutionProgressScreen({
         />
       </div>
 
-      {status === 'paused' && interrupt ? (
-        <section className="mb-6 p-4 bg-blue-50 border border-blue-300 rounded-md" aria-label="Execution paused with interrupt options">
+      {status === "paused" && interrupt ? (
+        <section
+          className="mb-6 p-4 bg-blue-50 border border-blue-300 rounded-md"
+          aria-label="Execution paused with interrupt options"
+        >
           <InterruptPrompt
             interrupt={interrupt}
             selectedOption={selectedInterruptOption}
@@ -291,18 +279,14 @@ function ExecutionProgressScreen({
 
           {selectedInterruptOption && (
             <div className="mt-6">
-              <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                Edit Resume Payload
-              </h4>
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">Edit Resume Payload</h4>
               <JSONEditorModal
                 value={resumeJsonContent}
                 onChange={setResumeJsonContent}
                 isValid={isResumeJsonValid}
               />
 
-              {!isResumeJsonValid && (
-                <div className="error-message mt-3">Invalid JSON</div>
-              )}
+              {!isResumeJsonValid && <div className="error-message mt-3">Invalid JSON</div>}
 
               <div className="flex gap-3 justify-end mt-4">
                 <button
@@ -318,15 +302,11 @@ function ExecutionProgressScreen({
                   onClick={handleResume}
                   disabled={!isResumeJsonValid || isResuming}
                   className="btn-primary"
-                  aria-label={
-                    isResuming ? 'Resuming execution...' : 'Resume execution'
-                  }
+                  aria-label={isResuming ? "Resuming execution..." : "Resume execution"}
                   aria-busy={isResuming}
                 >
-                  {isResuming && (
-                    <span className="spinner mr-2" aria-hidden="true"></span>
-                  )}
-                  {isResuming ? 'Resuming...' : 'Resume'}
+                  {isResuming && <span className="spinner mr-2" aria-hidden="true"></span>}
+                  {isResuming ? "Resuming..." : "Resume"}
                 </button>
               </div>
             </div>
@@ -334,10 +314,15 @@ function ExecutionProgressScreen({
         </section>
       ) : null}
 
-      {status === 'error' && error ? (
-        <section className="mb-6 p-4 bg-red-50 border border-red-300 rounded-md" aria-label="Execution error status">
+      {status === "error" && error ? (
+        <section
+          className="mb-6 p-4 bg-red-50 border border-red-300 rounded-md"
+          aria-label="Execution error status"
+        >
           <h4 className="text-sm font-semibold text-red-900 mb-2">Error</h4>
-          <p className="text-red-800 text-sm mb-4" role="alert">{error}</p>
+          <p className="text-red-800 text-sm mb-4" role="alert">
+            {error}
+          </p>
           <div className="flex gap-3 justify-end">
             <button
               type="button"
@@ -352,23 +337,22 @@ function ExecutionProgressScreen({
               onClick={handleRetry}
               disabled={isRetrying}
               className="btn-danger"
-              aria-label={isRetrying ? 'Retrying...' : 'Retry execution'}
+              aria-label={isRetrying ? "Retrying..." : "Retry execution"}
               aria-busy={isRetrying}
             >
-              {isRetrying && (
-                <span className="spinner mr-2" aria-hidden="true"></span>
-              )}
-              {isRetrying ? 'Retrying...' : 'Retry'}
+              {isRetrying && <span className="spinner mr-2" aria-hidden="true"></span>}
+              {isRetrying ? "Retrying..." : "Retry"}
             </button>
           </div>
         </section>
       ) : null}
 
-      {status === 'completed' && finalResult ? (
-        <section className="mb-6 p-4 bg-green-50 border border-green-300 rounded-md" aria-label="Execution completion status">
-          <h4 className="text-sm font-semibold text-green-900 mb-3">
-            Execution Completed
-          </h4>
+      {status === "completed" && finalResult ? (
+        <section
+          className="mb-6 p-4 bg-green-50 border border-green-300 rounded-md"
+          aria-label="Execution completion status"
+        >
+          <h4 className="text-sm font-semibold text-green-900 mb-3">Execution Completed</h4>
           <div className="bg-white border border-green-200 rounded-md p-3 mb-4 overflow-auto max-h-64">
             <pre className="font-mono text-sm text-gray-900">
               {JSON.stringify(finalResult, null, 2)}
@@ -387,7 +371,7 @@ function ExecutionProgressScreen({
         </section>
       ) : null}
     </div>
-  ) as JSX.Element;
+  ) as JSX.Element
 }
 
-export default ExecutionProgressScreen;
+export default ExecutionProgressScreen

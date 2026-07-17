@@ -42,7 +42,12 @@
    * ## Heading Hierarchy
    * Ensure sufficient color contrast (WCAG AA: 4.5:1 for text).
    */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold text-gray-900;
   }
 
