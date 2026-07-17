@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { ExecutionStatus } from '@/types/api';
+import type { ExecutionStatus } from '@/types/api';
 
 interface StatusBadgeProps {
   status: ExecutionStatus;

@@ -11,7 +11,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import InterruptPrompt from '@/components/InterruptPrompt';
-import { StandardizedInterrupt, InterruptOption } from '@/types/api';
+import type { StandardizedInterrupt, InterruptOption } from '@/types/api';
 
 describe('InterruptPrompt', () => {
   const mockOnSelectOption = vi.fn();

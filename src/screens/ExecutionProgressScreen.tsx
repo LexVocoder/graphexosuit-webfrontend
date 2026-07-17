@@ -14,7 +14,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { pollThread, resumeThread, retryThread } from '@/api/client';
-import {
+import type {
   ExecutionData,
   ExecutionStatus,
   StandardizedInterrupt,

@@ -10,7 +10,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import StatusBadge from '@/components/StatusBadge';
-import { ExecutionStatus } from '@/types/api';
+import type { ExecutionStatus } from '@/types/api';
 
 describe('StatusBadge', () => {
   it('should display running status', () => {

@@ -14,7 +14,7 @@ import userEvent from '@testing-library/user-event';
 import ExecutionProgressScreen from '@/screens/ExecutionProgressScreen';
 import * as apiClient from '@/api/client';
 import { AppProvider } from '@/context/AppContext';
-import { ExecutionData } from '@/types/api';
+import type { ExecutionData } from '@/types/api';
 
 vi.mock('@/api/client');
 vi.mock('@monaco-editor/react', () => ({

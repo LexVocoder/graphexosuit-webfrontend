@@ -8,8 +8,8 @@
  *  - Provide configurable API base URL via environment
  */
 
-import axios, { AxiosInstance } from 'axios';
-import {
+import axios, { type AxiosInstance } from 'axios';
+import type {
   ExecutionData,
   RunResponse,
   ResumeResponse,

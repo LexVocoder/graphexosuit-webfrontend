@@ -11,7 +11,8 @@
  *  - Responsive on mobile (drag handle disabled on small screens)
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import type React from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface OutputTextBoxProps {
   lines: string[];

@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { StandardizedInterrupt, InterruptOption } from '@/types/api';
+import type { StandardizedInterrupt, InterruptOption } from '@/types/api';
 
 interface InterruptPromptProps {
   interrupt: StandardizedInterrupt;
