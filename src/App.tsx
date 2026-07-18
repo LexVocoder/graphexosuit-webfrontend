@@ -16,6 +16,7 @@ import ExecutionProgressScreen from "@/screens/ExecutionProgressScreen"
 
 type CurrentScreen = "pre-run" | "execution-progress"
 const DEFAULT_WORKFLOW_NAME = "graphexosuit"
+const LOADING_TITLE = "Loading..."
 
 /**
  * App component: Root of application with screen router.
@@ -26,6 +27,7 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState<CurrentScreen>("pre-run")
   const [threadId, setThreadId] = useState<string | null>(null)
   const [workflowName, setWorkflowName] = useState(DEFAULT_WORKFLOW_NAME)
+  const [isConfigLoading, setIsConfigLoading] = useState(true)
 
   useEffect(() => {
     let isActive = true
@@ -42,6 +44,10 @@ function App() {
         if (isActive) {
           setWorkflowName(DEFAULT_WORKFLOW_NAME)
         }
+      } finally {
+        if (isActive) {
+          setIsConfigLoading(false)
+        }
       }
     }
 
@@ -53,8 +59,8 @@ function App() {
   }, [])
 
   useEffect(() => {
-    document.title = workflowName
-  }, [workflowName])
+    document.title = isConfigLoading ? LOADING_TITLE : workflowName
+  }, [isConfigLoading, workflowName])
 
   /**
    * Handle starting a run: transition to execution-progress screen.

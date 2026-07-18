@@ -33,6 +33,8 @@ describe("App", () => {
   it("should render header from backend config", async () => {
     render(<App />)
 
+    expect(document.title).toBe("Loading...")
+
     await waitFor(() => {
       expect(screen.getByText("Test Workflow")).toBeInTheDocument()
       expect(document.title).toBe("Test Workflow")
@@ -43,6 +45,8 @@ describe("App", () => {
     vi.mocked(apiClient.getConfig).mockRejectedValueOnce(new Error("Config unavailable"))
 
     render(<App />)
+
+    expect(document.title).toBe("Loading...")
 
     await waitFor(() => {
       expect(screen.getByText("graphexosuit")).toBeInTheDocument()
