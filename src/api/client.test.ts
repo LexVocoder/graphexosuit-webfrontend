@@ -87,6 +87,31 @@ describe("API Client", () => {
     })
   })
 
+  describe("getConfig", () => {
+    it("should make GET request to /config", async () => {
+      const response = {
+        workflow_name: "Test Workflow",
+        sample_initial_state: { key: "value" },
+      }
+
+      mockGetFn.mockResolvedValueOnce({ data: response })
+
+      const { getConfig: testGetConfig } = await import("@/api/client")
+      const result = await testGetConfig()
+
+      expect(mockGetFn).toHaveBeenCalledWith("/config")
+      expect(result).toEqual(response)
+    })
+
+    it("should propagate config fetch errors", async () => {
+      const error = new Error("Config unavailable")
+      mockGetFn.mockRejectedValueOnce(error)
+
+      const { getConfig: testGetConfig } = await import("@/api/client")
+      await expect(testGetConfig()).rejects.toThrow("Config unavailable")
+    })
+  })
+
   describe("resumeThread", () => {
     it("should make POST request with resume value", async () => {
       const threadId = "abc123"

@@ -1,6 +1,6 @@
-# GraphExosuit Frontend
+# graphexosuit webfrontend
 
-A React + TypeScript frontend for the GraphExosuit REST API. Provides real-time execution monitoring, interrupt handling, and result display.
+A React + TypeScript frontend for the graphexosuit REST API. Provides real-time execution monitoring, interrupt handling, and result display.
 
 ## Features
 
@@ -68,7 +68,7 @@ app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
 
 1. Build the frontend: `npm run build`
 2. Serve `dist/` as static files from your web server
-3. Configure `VITE_API_BASE_URL` to point to your GraphExosuit backend
+3. Configure `VITE_API_BASE_URL` to point to your graphexosuit backend
 
 ## Architecture
 

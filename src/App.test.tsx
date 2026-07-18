@@ -24,11 +24,30 @@ vi.mock("@monaco-editor/react", () => ({
 describe("App", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(apiClient.getConfig).mockResolvedValue({
+      workflow_name: "Test Workflow",
+      sample_initial_state: null,
+    })
   })
 
-  it("should render header", () => {
+  it("should render header from backend config", async () => {
     render(<App />)
-    expect(screen.getByText("GraphExosuit")).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(screen.getByText("Test Workflow")).toBeInTheDocument()
+      expect(document.title).toBe("Test Workflow")
+    })
+  })
+
+  it("should fall back to graphexosuit when config fetch fails", async () => {
+    vi.mocked(apiClient.getConfig).mockRejectedValueOnce(new Error("Config unavailable"))
+
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText("graphexosuit")).toBeInTheDocument()
+      expect(document.title).toBe("graphexosuit")
+    })
   })
 
   it("should start on pre-run screen", () => {
@@ -110,7 +129,9 @@ describe("App", () => {
     render(<App />)
 
     // AppProvider should be active from the start (pre-run screen has polling interval)
-    expect(screen.getByText("GraphExosuit")).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText("Test Workflow")).toBeInTheDocument()
+    })
 
     // Navigate to execution screen
     await user.click(screen.getByRole("button", { name: /run graph/i }))

@@ -9,7 +9,13 @@
  */
 
 import axios, { type AxiosInstance } from "axios"
-import type { ExecutionData, RunResponse, ResumeResponse, RetryResponse } from "@/types/api"
+import type {
+  ConfigResponse,
+  ExecutionData,
+  RunResponse,
+  ResumeResponse,
+  RetryResponse,
+} from "@/types/api"
 
 /** Get the API base URL from environment or default. */
 function getApiBaseUrl(): string {
@@ -40,6 +46,22 @@ const apiClient: AxiosInstance = axios.create({
  */
 export async function runGraph(parameters: unknown): Promise<RunResponse> {
   const response = await apiClient.post<RunResponse>("/run", parameters)
+  return response.data
+}
+
+/**
+ * Fetch frontend configuration.
+ *
+ * Why: Retrieve the workflow display name and other startup config.
+ *
+ * Returns:
+ *   Promise resolving to config values from the backend.
+ *
+ * Throws:
+ *   If HTTP request fails.
+ */
+export async function getConfig(): Promise<ConfigResponse> {
+  const response = await apiClient.get<ConfigResponse>("/config")
   return response.data
 }
 

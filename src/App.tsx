@@ -8,12 +8,14 @@
  *  - Maintain thread_id state across screens
  */
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { getConfig } from "@/api/client"
 import { AppProvider } from "@/context/AppContext"
 import PreRunScreen from "@/screens/PreRunScreen"
 import ExecutionProgressScreen from "@/screens/ExecutionProgressScreen"
 
 type CurrentScreen = "pre-run" | "execution-progress"
+const DEFAULT_WORKFLOW_NAME = "graphexosuit"
 
 /**
  * App component: Root of application with screen router.
@@ -23,6 +25,36 @@ type CurrentScreen = "pre-run" | "execution-progress"
 function App() {
   const [currentScreen, setCurrentScreen] = useState<CurrentScreen>("pre-run")
   const [threadId, setThreadId] = useState<string | null>(null)
+  const [workflowName, setWorkflowName] = useState(DEFAULT_WORKFLOW_NAME)
+
+  useEffect(() => {
+    let isActive = true
+
+    const loadConfig = async () => {
+      try {
+        const config = await getConfig()
+        if (isActive) {
+          setWorkflowName(config.workflow_name)
+        }
+      } catch (exn) {
+        console.error(exn)
+
+        if (isActive) {
+          setWorkflowName(DEFAULT_WORKFLOW_NAME)
+        }
+      }
+    }
+
+    void loadConfig()
+
+    return () => {
+      isActive = false
+    }
+  }, [])
+
+  useEffect(() => {
+    document.title = workflowName
+  }, [workflowName])
 
   /**
    * Handle starting a run: transition to execution-progress screen.
@@ -45,7 +77,7 @@ function App() {
       <div className="min-h-screen bg-white text-gray-900">
         <header className="border-b border-gray-200 bg-gray-50">
           <div className="container-centered safe-container">
-            <h1 className="text-3xl font-bold text-gray-900">GraphExosuit</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{workflowName}</h1>
           </div>
         </header>
 

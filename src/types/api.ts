@@ -1,5 +1,5 @@
 /**
- * GraphExosuit Frontend API Types
+ * graphexosuit Frontend API Types
  *
  * Responsibilities:
  *  - Define TypeScript interfaces for all backend API response shapes
@@ -62,4 +62,10 @@ export interface ResumeResponse {
 export interface RetryResponse {
   thread_id: string
   poll_url: string
+}
+
+/** Response from GET /config. */
+export interface ConfigResponse {
+  workflow_name: string
+  sample_initial_state: unknown
 }
