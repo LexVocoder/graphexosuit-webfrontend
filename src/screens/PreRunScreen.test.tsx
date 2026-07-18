@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import PreRunScreen from "@/screens/PreRunScreen"
 import * as apiClient from "@/api/client"
@@ -24,20 +24,29 @@ vi.mock("@monaco-editor/react", () => ({
 
 describe("PreRunScreen", () => {
   const mockOnStartRun = vi.fn()
+  const sampleInitialState = {
+    from: "config",
+  }
 
   beforeEach(() => {
     mockOnStartRun.mockClear()
     vi.clearAllMocks()
+    vi.mocked(apiClient.getConfig).mockResolvedValue({
+      workflow_name: "Test Workflow",
+      sample_initial_state: sampleInitialState,
+    })
   })
 
-  it("should render with prettified initial state", () => {
+  it("should load initial state from config", async () => {
     render(<PreRunScreen onStartRun={mockOnStartRun} />)
 
-    const editor = screen.getByTestId("json-editor") as HTMLTextAreaElement
-    const parsed = JSON.parse(editor.value)
+    await waitFor(() => {
+      const editor = screen.getByTestId("json-editor") as HTMLTextAreaElement
+      const parsed = JSON.parse(editor.value)
 
-    expect(parsed).toEqual({
-      initial_state: { key: "value" },
+      expect(parsed).toEqual({
+        initial_state: sampleInitialState,
+      })
     })
   })
 
@@ -55,7 +64,6 @@ describe("PreRunScreen", () => {
   })
 
   it("should disable Run button on invalid JSON", async () => {
-    const _user = userEvent.setup()
     render(<PreRunScreen onStartRun={mockOnStartRun} />)
 
     const editor = screen.getByTestId("json-editor") as HTMLTextAreaElement
@@ -65,13 +73,11 @@ describe("PreRunScreen", () => {
     expect(runButton).not.toBeDisabled()
 
     // Make invalid
-    editor.value = "{invalid"
-    editor.dispatchEvent(new Event("change", { bubbles: true }))
+    fireEvent.change(editor, { target: { value: "{invalid" } })
 
-    // TODO: Mocked Monaco editor onChange doesn't trigger state validation
-    // await waitFor(() => {
-    //   expect(runButton).toBeDisabled();
-    // });
+    await waitFor(() => {
+      expect(runButton).toBeDisabled()
+    })
   })
 
   it("should call runGraph on Run button click", async () => {
@@ -149,26 +155,24 @@ describe("PreRunScreen", () => {
   })
 
   it("should allow editing JSON", async () => {
-    const _user = userEvent.setup()
+    const user = userEvent.setup()
     render(<PreRunScreen onStartRun={mockOnStartRun} />)
 
     const editor = screen.getByTestId("json-editor") as HTMLTextAreaElement
 
-    editor.value = '{"custom": "data"}'
-    editor.dispatchEvent(new Event("change", { bubbles: true }))
+    fireEvent.change(editor, { target: { value: '{"custom": "data"}' } })
 
     vi.mocked(apiClient.runGraph).mockResolvedValueOnce({
       thread_id: "abc123",
       poll_url: "/thread/abc123",
     })
 
-    // TODO: Mocked Monaco editor onChange doesn't propagate to component state
-    // await user.click(screen.getByRole('button', { name: /run graph/i }));
-    //
-    // await waitFor(() => {
-    //   expect(apiClient.runGraph).toHaveBeenCalledWith({
-    //     custom: 'data',
-    //   });
-    // });
+    await user.click(screen.getByRole("button", { name: /run graph/i }))
+
+    await waitFor(() => {
+      expect(apiClient.runGraph).toHaveBeenCalledWith({
+        custom: "data",
+      })
+    })
   })
 })

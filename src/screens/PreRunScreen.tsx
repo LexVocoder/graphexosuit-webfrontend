@@ -9,18 +9,26 @@
  *  - Display error toast on failure
  */
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Editor from "@monaco-editor/react"
-import { runGraph } from "@/api/client"
+import { getConfig, runGraph } from "@/api/client"
 
 interface PreRunScreenProps {
   onStartRun: (threadId: string) => void
 }
 
-const DEFAULT_INITIAL_STATE = {
-  initial_state: {
-    key: "value",
-  },
+const DEFAULT_SAMPLE_INITIAL_STATE = {
+  key: "value",
+}
+
+function getInitialStateContent(sampleInitialState: unknown): string {
+  return JSON.stringify(
+    {
+      initial_state: sampleInitialState ?? DEFAULT_SAMPLE_INITIAL_STATE,
+    },
+    null,
+    2
+  )
 }
 
 /**
@@ -32,12 +40,33 @@ const DEFAULT_INITIAL_STATE = {
  *   onStartRun: Callback when run succeeds, passed thread_id.
  */
 function PreRunScreen({ onStartRun }: PreRunScreenProps) {
-  const [jsonContent, setJsonContent] = useState<string>(
-    JSON.stringify(DEFAULT_INITIAL_STATE, null, 2)
-  )
+  const [jsonContent, setJsonContent] = useState<string>(getInitialStateContent(undefined))
   const [isJsonValid, setIsJsonValid] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const hasUserEditedRef = useRef(false)
+
+  useEffect(() => {
+    let isActive = true
+
+    const loadSampleInitialState = async () => {
+      try {
+        const config = await getConfig()
+
+        if (isActive && !hasUserEditedRef.current) {
+          setJsonContent(getInitialStateContent(config.sample_initial_state))
+        }
+      } catch {
+        // Keep fallback default when config request fails.
+      }
+    }
+
+    void loadSampleInitialState()
+
+    return () => {
+      isActive = false
+    }
+  }, [])
 
   /**
    * Validate JSON whenever content changes.
@@ -93,7 +122,10 @@ function PreRunScreen({ onStartRun }: PreRunScreenProps) {
           height="400px"
           defaultLanguage="json"
           value={jsonContent}
-          onChange={value => setJsonContent(value || "")}
+          onChange={value => {
+            hasUserEditedRef.current = true
+            setJsonContent(value || "")
+          }}
           options={{
             minimap: { enabled: false },
             wordWrap: "on",

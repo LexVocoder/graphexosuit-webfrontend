@@ -42,7 +42,7 @@ describe("App", () => {
   })
 
   it("should fall back to graphexosuit when config fetch fails", async () => {
-    vi.mocked(apiClient.getConfig).mockRejectedValueOnce(new Error("Config unavailable"))
+    vi.mocked(apiClient.getConfig).mockRejectedValue(new Error("Config unavailable"))
 
     render(<App />)
 
